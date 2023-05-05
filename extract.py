@@ -1,12 +1,23 @@
 import os
+import re
 import sqlite3
 import sys
-from io import StringIO
-from pathlib import Path
 
 from bs4 import BeautifulSoup
+from pathlib import Path
 from pdfminer.high_level import extract_text
 from tqdm import tqdm
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"}
+
+def is_html(file_path):
+    extension = Path(file_path).suffix.lower()
+    if extension == ".html":
+        return True
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        content = file.read()
+        return bool(re.search(r'(?i)<!DOCTYPE html', content))
 
 def extract_text_from_html(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
@@ -37,29 +48,28 @@ def insert_into_database(conn, path, content):
 
 def main():
     folder_path = sys.argv[1] if len(sys.argv) > 1 else "."
-
     files = get_all_files_in_directory(folder_path)
-
     conn = create_database_and_table()
 
     for file_path in tqdm(files, desc="Processing files"):
         extension = Path(file_path).suffix.lower()
+        if extension in IMAGE_EXTENSIONS:
+            continue
 
-        if extension in {".txt", ".pdf", ".html"}:
-            try:
-                if extension == ".txt":
-                    with open(file_path, "r", encoding="utf-8") as file:
-                        content = file.read()
+        try:
+            if extension == ".pdf":
+                content = extract_text_from_pdf(file_path)
+            elif is_html(file_path):
+                content = extract_text_from_html(file_path)
+            else:
+                with open(file_path, "r", encoding="utf-8") as file:
+                    content = file.read()
 
-                elif extension == ".pdf":
-                    content = extract_text_from_pdf(file_path)
+            insert_into_database(conn, file_path, content.strip().replace('\n\n\n', '\n'))
 
-                elif extension == ".html":
-                    content = extract_text_from_html(file_path)
-
-                insert_into_database(conn, file_path, content)
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}", file=sys.stderr)
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}", file=sys.stderr)
+            continue
 
     conn.close()
 

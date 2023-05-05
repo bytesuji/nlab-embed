@@ -3,7 +3,7 @@ import sqlite3
 from embed import Embedder
 
 embedder = Embedder()
-conn = sqlite3.connect("file_content.db")
+conn = sqlite3.connect("file_contents.db")
 cursor = conn.cursor()
 
 cursor.execute("SELECT * FROM files")

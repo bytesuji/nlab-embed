@@ -6,3 +6,5 @@ venv/
 *.swn
 *.swo
 *.swp
+*.bz2
+*.cer
