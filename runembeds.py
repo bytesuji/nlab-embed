@@ -4,7 +4,7 @@ import sys
 
 from embed import Embedder
 
-embedder = Embedder(device='cpu', instruction='Represent the mathematical document for retrieval')
+embedder = Embedder(instruction='Represent the mathematical document for retrieval')
 # db_path = "file_contents.db"
 db_path = "files_small.db"
 conn = sqlite3.connect(db_path)
@@ -22,7 +22,7 @@ cursor.execute("""
 
 for (path, _), embedding in zip(rows, embedded_texts):
     emb_str = json.dumps(embedding)
-    cursor.execute("INSERT INTO embedded_files (path, embedded_content) VALUES (?, ?)", (path, emb_str))
+    cursor.execute("INSERT INTO embedded_files (path, embedding) VALUES (?, ?)", (path, emb_str))
 
 conn.commit()
 conn.close()

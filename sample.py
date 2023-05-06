@@ -12,7 +12,7 @@ c_small.execute('''CREATE TABLE IF NOT EXISTS files
 
 c_full.execute('SELECT * FROM files')
 all_rows = c_full.fetchall()
-sample_rows = random.sample(all_rows, 20)
+sample_rows = random.sample(all_rows, 500)
 
 c_small.executemany('INSERT INTO files VALUES (?, ?)', sample_rows)
 
