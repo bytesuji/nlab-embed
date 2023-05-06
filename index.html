@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLab Semantic Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            text-align: center;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>NLab Semantic Search</h1>
+    <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Enter your query">
+        <button id="search-button">Search</button>
+    </div>
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('search-button').addEventListener('click', async () => {
+            const searchBar = document.getElementById('search-bar');
+            const resultsDiv = document.getElementById('results');
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                body: new FormData(searchBar.form)
+            });
+            const resultPaths = await response.json();
+
+            resultsDiv.innerHTML = '';
+            resultPaths.forEach(path => {
+                const link = document.createElement('a');
+                link.href = path;
+                link.textContent = path;
+                link.target = '_blank';
+                resultsDiv.appendChild(link);
+                resultsDiv.appendChild(document.createElement('br'));
+            });
+        });
+    </script>
+</body>
+</html>
+

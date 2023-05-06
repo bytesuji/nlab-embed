@@ -1,6 +1,7 @@
 import json
 import sqlite3
 import sys
+import hnswlib
 
 from embed import Embedder
 from multiprocessing import Process, Queue
@@ -42,14 +43,25 @@ def main():
     # Flatten the list of embeddings
     embedded_texts = [emb for sublist in zip(*all_embeddings) for emb in sublist]
 
+    # Create an hnswlib index and add the embeddings
+    dim = len(embedded_texts[0])
+    num_elements = len(embedded_texts)
+    p = hnswlib.Index(space='cosine', dim=dim)
+    p.init_index(max_elements=num_elements, ef_construction=100, M=16)
+
+    for i, embedding in enumerate(embedded_texts):
+        p.add_items([embedding], [i])
+
+    # Save the hnswlib index
+    p.save_index("nlab_vectors.idx")
+
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS embedded_files
-        (path TEXT, embedding BLOB)
+        CREATE TABLE IF NOT EXISTS embedded_file_ids
+        (path TEXT, embedding_id INTEGER)
     """)
 
-    for (path, _), embedding in zip(rows, embedded_texts):
-        emb_str = json.dumps(embedding)
-        cursor.execute("INSERT INTO embedded_files (path, embedding) VALUES (?, ?)", (path, emb_str))
+    for (path, _), i in zip(rows, range(len(embedded_texts))):
+        cursor.execute("INSERT INTO embedded_file_ids (path, embedding_id) VALUES (?, ?)", (path, i))
 
     conn.commit()
     conn.close()

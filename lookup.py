@@ -1,25 +1,23 @@
 import json
 import sqlite3
-from embed import Embedder
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+import hnswlib
 
-def knn(embedding, all_embeddings, paths, k=5):
-    similarities = cosine_similarity([embedding], all_embeddings)
-    indices = np.argsort(-similarities[0])[:k]  # Get indices of top k similarities
-    top_k_paths = [paths[i] for i in indices]
-    return top_k_paths
+from embed import Embedder
 
 def main():
-    db_path = "files_full.db"
+    db_path = "files_full2.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM embedded_files")
+    # Load hnswlib index
+    p = hnswlib.Index(space='cosine', dim=768)  # Set the dim to the dimension of your embeddings
+    p.load_index("nlab_vectors.idx")
+
+    # Get file paths from the database
+    cursor.execute("SELECT * FROM embedded_file_ids")
     rows = cursor.fetchall()
     paths = [row[0] for row in rows]
-    embeddings = [json.loads(row[1]) for row in rows]
-    
+
     # Instantiate an embedder
     embedder = Embedder(instruction='Represent the mathematical user query for retrieving supporting documents; Input:')
 
@@ -32,12 +30,12 @@ def main():
         # Embed the user's query
         query_embedding = embedder.embed([query])[0]
 
-        # Find the top 5 matches
-        top_paths = knn(query_embedding, embeddings, paths, k=5)
+        # Find the top 15 matches
+        top_indices, _ = p.knn_query([query_embedding], k=15)
 
-        print("Top 5 matching file paths:")
-        for path in top_paths:
-            print(path)
+        print("Top 15 matching file paths:")
+        for index in top_indices[0]:
+            print(paths[int(index)])
 
     conn.close()
 
