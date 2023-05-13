@@ -34,16 +34,25 @@ def index():
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = request.get_json(force=True)['query']
+    data = request.get_json(force=True)
+    query = data['query']
+    page = data.get('page', 0)
+    results_per_page = 15
 
     # Embed the user's query
     query_embedding = embedder.embed([query])[0]
 
-    # Find the top 15 matches
-    top_indices, _ = p.knn_query([query_embedding], k=15)
+    # Find the top matches
+    total_results = 100  # You can adjust this number based on your desired total results
+    top_indices, _ = p.knn_query([query_embedding], k=total_results)
 
-    result_paths = [get_path(index) for index in top_indices[0]]
-    return jsonify(result_paths)
+    # Paginate the results
+    start_index = page * results_per_page
+    end_index = start_index + results_per_page
+    paginated_indices = top_indices[0][start_index:end_index]
+
+    result_paths = [get_path(index) for index in paginated_indices]
+    return jsonify
 
 if __name__ == '__main__':
     app.run(port=8080)

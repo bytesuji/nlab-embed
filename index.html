@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NLab Semantic Search</title>
+    <title>Search Engine</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,21 +20,33 @@
     </style>
 </head>
 <body>
-    <h1>NLab Semantic Search</h1>
+    <h1>Search Engine</h1>
     <div class="search-container">
         <input type="text" id="search-bar" placeholder="Enter your query">
         <button id="search-button">Search</button>
     </div>
     <div id="results"></div>
+    <div class="search-container">
+        <button id="prev-page">Previous</button>
+        <button id="next-page">Next</button>
+    </div>
 
     <script>
-        document.getElementById('search-button').addEventListener('click', async () => {
+        let currentPage = 0;
+
+        async function performSearch() {
             const searchBar = document.getElementById('search-bar');
             const resultsDiv = document.getElementById('results');
 
             const response = await fetch('/search', {
                 method: 'POST',
-                body: new FormData(searchBar.form)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    query: searchBar.value,
+                    page: currentPage
+                })
             });
             const resultPaths = await response.json();
 
@@ -47,8 +59,24 @@
                 resultsDiv.appendChild(link);
                 resultsDiv.appendChild(document.createElement('br'));
             });
+        }
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            currentPage = 0;
+            performSearch();
+        });
+
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                performSearch();
+            }
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            currentPage++;
+            performSearch();
         });
     </script>
 </body>
 </html>
-
