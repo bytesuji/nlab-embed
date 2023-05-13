@@ -149,7 +149,7 @@
             const pageInfo = document.getElementById('page-info');
 
             resultsDiv.innerHTML = '';
-            document.getElementById('search-container').display = 'none';
+            document.getElementsByClassName('search-container')[0].display = 'none';
 
             document.getElementById('loading').style.display = 'block';
             const response = await fetch('/search', {
