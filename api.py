@@ -1,12 +1,17 @@
 import hnswlib
 import json
+import logging
 import sqlite3
 
 from embed import Embedder
 from flask import Flask, request, jsonify, render_template
 from functools import lru_cache
+from time import strftime
+
 
 app = Flask(__name__)
+
+logging.basicConfig(filename='api.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
 db_path = "files_full2.db"
 conn = sqlite3.connect(db_path)
@@ -39,12 +44,21 @@ def get_results(query, result_count):
 def index():
     return render_template('index.html')
 
+def log_request(request, page):
+    user_ip = request.remote_addr
+    query = request.json.get('query', '')
+    new_total_results = request.json.get('new_total_results', '')
+    log_message = f"IP: {user_ip} - Query: '{query}' - Page: {page} - New Total Results: {new_total_results}"
+    logging.info(log_message)
+
 @app.route('/search', methods=['POST'])
 def search():
     data = request.get_json(force=True)
     query = data['query']
     page = data.get('page', 0)
     results_per_page = 15
+
+    log_request(request, page)
 
     total_results = 100  # You can adjust this number based on your desired total results
     new_total_results = data.get('new_total_results', None)

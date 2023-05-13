@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Engine</title>
+    <title>nLab Semantic Search</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,6 +16,74 @@
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
+        }
+
+        .lds-grid {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .lds-grid div {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            animation: lds-grid 1.2s linear infinite;
+        }
+        .lds-grid div:nth-child(1) {
+            top: 8px;
+            left: 8px;
+            animation-delay: 0s;
+        }
+        .lds-grid div:nth-child(2) {
+            top: 8px;
+            left: 32px;
+            animation-delay: -0.4s;
+        }
+        .lds-grid div:nth-child(3) {
+            top: 8px;
+            left: 56px;
+            animation-delay: -0.8s;
+        }
+        .lds-grid div:nth-child(4) {
+            top: 32px;
+            left: 8px;
+            animation-delay: -0.4s;
+        }
+        .lds-grid div:nth-child(5) {
+            top: 32px;
+            left: 32px;
+            animation-delay: -0.8s;
+        }
+        .lds-grid div:nth-child(6) {
+            top: 32px;
+            left: 56px;
+            animation-delay: -1.2s;
+        }
+        .lds-grid div:nth-child(7) {
+            top: 56px;
+            left: 8px;
+            animation-delay: -0.8s;
+        }
+        .lds-grid div:nth-child(8) {
+            top: 56px;
+            left: 32px;
+            animation-delay: -1.2s;
+        }
+        .lds-grid div:nth-child(9) {
+            top: 56px;
+            left: 56px;
+            animation-delay: -1.6s;
+        }
+        @keyframes lds-grid {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
         }
     </style>
 </head>
@@ -31,7 +99,9 @@
         <span id="page-info"></span>
         <button id="next-page">Next</button>
     </div>
-    <div id="loading" style="display:none; text-align:center;">Loading...</div>
+    <div id="loading" style="display:none; text-align:center;">
+        <div class="lds-grid"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+    </div>
 
     <script>
         let currentPage = 0;
@@ -57,7 +127,7 @@
             document.getElementById('loading').style.display = 'none';
             resultsDiv.innerHTML = '';
             document.getElementById('pagination').style.display = 'flex';
-            document.getElementById('page-info').textContent = `&nbsp;&nbsp;Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}&nbsp;&nbsp;`;
+            document.getElementById('page-info').innerHTML = `&nbsp;&nbsp;Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}&nbsp;&nbsp;`;
 
             resultsDiv.style.textAlign = 'center';
             resultPaths.forEach((path, index) => {
@@ -85,7 +155,15 @@
             }
         });
 
+        document.getElementById('search-bar').addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                currentPage = 0;
+                performSearch();
+            }
+        });
+
         document.getElementById('next-page').addEventListener('click', async () => {
+            const searchBar = document.getElementById('search-bar');
             if (currentPage + 1 >= Math.ceil(total_results / results_per_page)) {
                 total_results += 100;
                 await fetch('/search', {
