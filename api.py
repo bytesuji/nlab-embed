@@ -44,6 +44,9 @@ def search():
 
     # Find the top matches
     total_results = 100  # You can adjust this number based on your desired total results
+    new_total_results = data.get('new_total_results', None)
+    if new_total_results:
+        total_results = int(new_total_results)
     top_indices, _ = p.knn_query([query_embedding], k=total_results)
 
     # Paginate the results
@@ -52,7 +55,7 @@ def search():
     paginated_indices = top_indices[0][start_index:end_index]
 
     result_paths = [get_path(index) for index in paginated_indices]
-    return jsonify
+    return jsonify(result_paths)
 
 if __name__ == '__main__':
     app.run(port=8080)

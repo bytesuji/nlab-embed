@@ -26,10 +26,12 @@
         <button id="search-button">Search</button>
     </div>
     <div id="results"></div>
-    <div class="search-container">
+    <div class="search-container" id="pagination" style="display:none;">
         <button id="prev-page">Previous</button>
+        <span id="page-info"></span>
         <button id="next-page">Next</button>
     </div>
+    <div id="loading" style="display:none; text-align:center;">Loading...</div>
 
     <script>
         let currentPage = 0;
@@ -38,6 +40,7 @@
             const searchBar = document.getElementById('search-bar');
             const resultsDiv = document.getElementById('results');
 
+            document.getElementById('loading').style.display = 'block';
             const response = await fetch('/search', {
                 method: 'POST',
                 headers: {
@@ -49,14 +52,19 @@
                 })
             });
             const resultPaths = await response.json();
-
+            document.getElementById('loading').style.display = 'none';
             resultsDiv.innerHTML = '';
-            resultPaths.forEach(path => {
+            document.getElementById('pagination').style.display = 'flex';
+            document.getElementById('page-info').textContent = `Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}`;
+
+            resultsDiv.style.textAlign = 'center';
+            resultPaths.forEach((path, index) => {
                 const link = document.createElement('a');
                 link.href = path;
-                link.textContent = path;
+                link.textContent = `${index + 1 + currentPage * results_per_page}. ${path}`;
                 link.target = '_blank';
                 resultsDiv.appendChild(link);
+                resultsDiv.appendChild(document.createElement('br'));
                 resultsDiv.appendChild(document.createElement('br'));
             });
         }
@@ -73,7 +81,15 @@
             }
         });
 
-        document.getElementById('next-page').addEventListener('click', () => {
+        document.getElementById('next-page').addEventListener('click', async () => {
+            if (currentPage + 1 >= Math.ceil(total_results / results_per_page)) {
+                total_results += 100;
+                await fetch('/search', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query: searchBar.value, page: currentPage, new_total_results: total_results})
+                });
+            }
             currentPage++;
             performSearch();
         });
