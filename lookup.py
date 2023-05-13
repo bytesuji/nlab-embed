@@ -19,7 +19,7 @@ def main():
     paths = [row[0] for row in rows]
 
     # Instantiate an embedder
-    embedder = Embedder(instruction='Represent the mathematical user query for retrieving supporting documents; Input:')
+    embedder = Embedder(device='cpu', instruction='Represent the mathematical user query for retrieving supporting documents; Input:')
 
     while True:
         query = input("Enter your query (or type 'exit' to quit): ")
@@ -33,9 +33,10 @@ def main():
         # Find the top 15 matches
         top_indices, _ = p.knn_query([query_embedding], k=15)
 
-        print("Top 15 matching file paths:")
+        print("----- RESULTS")
         for index in top_indices[0]:
-            print(paths[int(index)])
+            print(paths[int(index)].replace('/Users/albert/Downloads/', 'https://'))
+        print()
 
     conn.close()
 
