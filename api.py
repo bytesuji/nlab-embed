@@ -4,6 +4,7 @@ import sqlite3
 
 from embed import Embedder
 from flask import Flask, request, jsonify, render_template
+from functools import lru_cache
 
 app = Flask(__name__)
 
@@ -28,6 +29,12 @@ def get_path(index):
 # Instantiate an embedder
 embedder = Embedder(device='cpu', instruction='Represent the mathematical query for retrieving supporting documents; Input:')
 
+@lru_cache(maxsize=1024)
+def get_results(query, result_count):
+    query_embedding = embedder.embed([query])[0]
+    top_indices, _ = p.knn_query([query_embedding], k=result_count)
+    return top_indices
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -39,15 +46,12 @@ def search():
     page = data.get('page', 0)
     results_per_page = 15
 
-    # Embed the user's query
-    query_embedding = embedder.embed([query])[0]
-
-    # Find the top matches
     total_results = 100  # You can adjust this number based on your desired total results
     new_total_results = data.get('new_total_results', None)
     if new_total_results:
         total_results = int(new_total_results)
-    top_indices, _ = p.knn_query([query_embedding], k=total_results)
+
+    top_indices = get_results(query, total_results)
 
     # Paginate the results
     start_index = page * results_per_page

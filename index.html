@@ -35,6 +35,8 @@
 
     <script>
         let currentPage = 0;
+        let total_results = 100;
+        let results_per_page = 15;
 
         async function performSearch() {
             const searchBar = document.getElementById('search-bar');
@@ -55,17 +57,19 @@
             document.getElementById('loading').style.display = 'none';
             resultsDiv.innerHTML = '';
             document.getElementById('pagination').style.display = 'flex';
-            document.getElementById('page-info').textContent = `Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}`;
+            document.getElementById('page-info').textContent = `&nbsp;&nbsp;Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}&nbsp;&nbsp;`;
 
             resultsDiv.style.textAlign = 'center';
             resultPaths.forEach((path, index) => {
+                const paragraph = document.createElement('p');
                 const link = document.createElement('a');
                 link.href = path;
-                link.textContent = `${index + 1 + currentPage * results_per_page}. ${path}`;
+                link.textContent = `${path}`;
                 link.target = '_blank';
-                resultsDiv.appendChild(link);
-                resultsDiv.appendChild(document.createElement('br'));
-                resultsDiv.appendChild(document.createElement('br'));
+
+                paragraph.textContent = `${index + 1 + currentPage * results_per_page}. `;
+                paragraph.appendChild(link);
+                resultsDiv.appendChild(paragraph);
             });
         }
 
