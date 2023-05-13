@@ -31,6 +31,13 @@
             margin-left: 10px;
         }
 
+        a {
+            word-break: break-all;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
         button {
             font-family: Arial, sans-serif;
             font-size: 16px;
@@ -142,7 +149,7 @@
             const pageInfo = document.getElementById('page-info');
 
             resultsDiv.innerHTML = '';
-            pageInfo.innerHTML = '';
+            document.getElementById('search-container').display = 'none';
 
             document.getElementById('loading').style.display = 'block';
             const response = await fetch('/search', {
@@ -156,21 +163,45 @@
                 })
             });
             const resultPaths = await response.json();
+
             document.getElementById('loading').style.display = 'none';
+            document.getElementById('search-container').display = 'block';
             resultsDiv.innerHTML = '';
             document.getElementById('pagination').style.display = 'flex';
             document.getElementById('page-info').innerHTML = `&nbsp;&nbsp;Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}&nbsp;&nbsp;`;
 
+            // Update the page info and check if the user is on the last page
+            const totalPages = Math.ceil(total_results / results_per_page);
+            document.getElementById('page-info').innerHTML = `&nbsp;&nbsp;Page ${currentPage + 1} of ${totalPages}&nbsp;&nbsp;`;
+
+            // If the user is on the last page, hide the "Next" button
+            const nextPageButton = document.getElementById('next-page');
+            if (currentPage + 1 >= totalPages) {
+                nextPageButton.style.display = 'none';
+            } else {
+                nextPageButton.style.display = 'inline-block';
+            }
+
+            // If the user is on the first page, hide the "Previous" button
+            const prevPageButton = document.getElementById('prev-page');
+            if (currentPage === 0) {
+                prevPageButton.style.display = 'none';
+            } else {
+                prevPageButton.style.display = 'inline-block';
+            }
+
             resultsDiv.style.textAlign = 'center';
             resultPaths.forEach((path, index) => {
                 const paragraph = document.createElement('p');
+                paragraph.style.display = 'flex';
+                paragraph.style.justifyContent = 'center';
 
                 const number = document.createTextNode(`${index + 1 + currentPage * results_per_page}. `);
                 paragraph.appendChild(number);
 
                 const link = document.createElement('a');
                 link.href = path;
-                link.textContent = `${path}`;
+                link.textContent = ` ${path}`;
                 link.target = '_blank';
 
                 paragraph.appendChild(link);
