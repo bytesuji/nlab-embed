@@ -149,7 +149,7 @@
             const pageInfo = document.getElementById('page-info');
 
             resultsDiv.innerHTML = '';
-            document.getElementsByClassName('search-container')[0].display = 'none';
+            document.getElementById('pagination').style.display = 'none';
 
             document.getElementById('loading').style.display = 'block';
             const response = await fetch('/search', {
@@ -165,7 +165,7 @@
             const resultPaths = await response.json();
 
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('search-container').display = 'block';
+            document.getElementById('pagination').style.display = 'block';
             resultsDiv.innerHTML = '';
             document.getElementById('pagination').style.display = 'flex';
             document.getElementById('page-info').innerHTML = `&nbsp;&nbsp;Page ${currentPage + 1} of ${Math.ceil(total_results / results_per_page)}&nbsp;&nbsp;`;
