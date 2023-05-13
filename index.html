@@ -15,6 +15,7 @@
         .search-container {
             display: flex;
             justify-content: center;
+            align-items: center;
             margin-bottom: 20px;
         }
 
@@ -26,13 +27,14 @@
         }
 
         #search-button {
+            padding: 12px;
             margin-left: 10px;
         }
 
         button {
             font-family: Arial, sans-serif;
             font-size: 16px;
-            padding: 12px;
+            padding: 8px 12px
             border: 1px solid black;
             border-radius: 5px;
             background-color: white;
@@ -165,7 +167,6 @@
                 container.style.display = 'flex';
                 container.style.flexWrap = 'nowrap';
                 container.style.alignItems = 'center';
-                container.style.justifyContent = 'center';
 
                 const number = document.createElement('span');
                 number.textContent = `${index + 1 + currentPage * results_per_page}. `;
@@ -173,7 +174,7 @@
 
                 const paragraph = document.createElement('p');
                 paragraph.style.flex = '1';
-                paragraph.style.marginRight = '8px';
+                paragraph.style.marginRight = '4px';
 
                 const link = document.createElement('a');
                 link.href = path;
