@@ -25,6 +25,25 @@
             font-size: 16px;
         }
 
+        #search-button {
+            margin-left: 10px;
+        }
+
+        button {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            padding: 12px;
+            border: 1px solid black;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #f1f1f1;
+        }
+
         .lds-grid {
             display: inline-block;
             position: relative;
@@ -142,15 +161,29 @@
 
             resultsDiv.style.textAlign = 'center';
             resultPaths.forEach((path, index) => {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.flexWrap = 'nowrap';
+                container.style.alignItems = 'center';
+                container.style.justifyContent = 'center';
+
+                const number = document.createElement('span');
+                number.textContent = `${index + 1 + currentPage * results_per_page}. `;
+                number.style.whiteSpace = 'nowrap';
+
                 const paragraph = document.createElement('p');
+                paragraph.style.flex = '1';
+                paragraph.style.marginRight = '8px';
+
                 const link = document.createElement('a');
                 link.href = path;
                 link.textContent = `${path}`;
                 link.target = '_blank';
 
-                paragraph.textContent = `${index + 1 + currentPage * results_per_page}. `;
                 paragraph.appendChild(link);
-                resultsDiv.appendChild(paragraph);
+                container.appendChild(number);
+                container.appendChild(paragraph);
+                resultsDiv.appendChild(container);
             });
         }
 
