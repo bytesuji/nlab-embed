@@ -29,7 +29,7 @@
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: #fff;
+            background: #4637fd;
             animation: lds-grid 1.2s linear infinite;
         }
         .lds-grid div:nth-child(1) {
@@ -88,7 +88,7 @@
     </style>
 </head>
 <body>
-    <h1>Search Engine</h1>
+    <h1>nLab Semantic Search</h1>
     <div class="search-container">
         <input type="text" id="search-bar" placeholder="Enter your query">
         <button id="search-button">Search</button>
@@ -111,6 +111,7 @@
         async function performSearch() {
             const searchBar = document.getElementById('search-bar');
             const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
 
             document.getElementById('loading').style.display = 'block';
             const response = await fetch('/search', {
