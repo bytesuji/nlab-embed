@@ -163,18 +163,10 @@
 
             resultsDiv.style.textAlign = 'center';
             resultPaths.forEach((path, index) => {
-                const container = document.createElement('div');
-                container.style.display = 'flex';
-                container.style.flexWrap = 'nowrap';
-                container.style.alignItems = 'center';
-
-                const number = document.createElement('span');
-                number.textContent = `${index + 1 + currentPage * results_per_page}. `;
-                number.style.whiteSpace = 'nowrap';
-
                 const paragraph = document.createElement('p');
-                paragraph.style.flex = '1';
-                paragraph.style.marginRight = '4px';
+
+                const number = document.createTextNode(`${index + 1 + currentPage * results_per_page}. `);
+                paragraph.appendChild(number);
 
                 const link = document.createElement('a');
                 link.href = path;
@@ -182,9 +174,7 @@
                 link.target = '_blank';
 
                 paragraph.appendChild(link);
-                container.appendChild(number);
-                container.appendChild(paragraph);
-                resultsDiv.appendChild(container);
+                resultsDiv.appendChild(paragraph);
             });
         }
 
